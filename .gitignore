@@ -1,0 +1,14 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Images/Video
+*.png
+*_tracked*.jpg
+*.mp4
+*.psd
+*.gif
+
+# MS Office things
+*.pptx

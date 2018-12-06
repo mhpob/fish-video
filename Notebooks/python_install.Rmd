@@ -1,0 +1,131 @@
+---
+title: "Python, OpenCV, and Tracktor Installation"
+author: "Mike O'Brien"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_notebook: default
+  pdf_document: default
+urlcolor: blue
+---
+
+My first real foray into Python has been through the  [Tracktor](https://github.com/vivekhsridhar/Tracktor) package, as I wanted a free and (hopefully) easy way to track fish movement within a tank. I'm mostly going to directly copy from the excellent installation guide at Tracktor and add in a few things that I struggled with as a complete novice.
+
+## Install Miniconda
+
+From the [Tracktor](https://github.com/vivekhsridhar/Tracktor) guide:
+
+> Miniconda is an open source distribution of python that aims to simplify package management and deployment. Python is a programming language and requires an interpreter (i.e. software) to run. We recommend using python 3 since the code for Tracktor was designed using this version, but python 2.7+ should also work. Click here to [download and install miniconda with python 3](https://conda.io/miniconda.html); (please note that Anaconda, a more elaborate version of miniconda, will also work in the same manner).  
+>  
+> Important: tick the box "Add Anaconda to my PATH environment variable” when the installer launches, otherwise you will have issues with later stages of this installation tutorial. The installer states that this is not recommended but the risks to your machine are minimal and establishing a path to Anaconda is needed to run commands from the Terminal (Mac/Linux) or the Command Prompt (Windows).
+
+## Create a Conda environment
+Environments compartmentalize where your Python packages are installed. We need to create one for this analysis. Open the Terminal/Command prompt and type:
+
+```
+conda create --name mynewenv
+```
+"mynewenv" can be replaced with whatever you'd like to call the environment. When asked "`proceed ([y]/n)?`", type `y` to create the environment. To open the newly-created environment, type:
+
+```
+# Windows
+activate mynewenv
+
+# Mac
+source activate mynewenv
+```
+To close to environment:
+```
+# Windows
+deactivate
+
+# Mac
+source deactivate
+```
+
+That's really about it. To open Python within the condaenv, type `python`, and to close, type `exit()`.
+
+
+## Install Python packages into the Conda environment
+[Pip](https://pip.pypa.io/en/stable/) is a package installer/repository that we will use. It seems that there are others (including one that is internal to Miniconda), but again, I'm completely new to this so I can't say anything definitively. At this point I like to think of Pip as a group of functions that would run the analogous `install.packages` in R. The only reason I'm using Pip at this point is because many installation guides recommend it.
+
+```
+activate mynewenv
+conda install pip
+```
+Once Pip is installed, we use it to install the packages necessary for basic Python data analysis ([NumPy](http://www.numpy.org/), [pandas](https://pandas.pydata.org/), [SciPy](https://scipy.org/scipylib/index.html), [matplotlib](https://matplotlib.org/)) and a machine learning package used by Tracktor ([scikit-learn](https://scikit-learn.org/stable/)). In the Terminal/Command Prompt:
+
+```
+pip install numpy pandas scipy matplotlib scikit-learn
+deactivate
+```
+
+## Install [OpenCV](https://docs.opencv.org/master/)
+Again, directly from the [Tracktor documentation](https://github.com/vivekhsridhar/tracktor#installation):
+
+>OpenCV (Open Source Computer Vision) is a library of programming functions focused on real-time computer vision. OpenCV is freeware that works across all platforms but installing it on your computer might be the trickiest part of getting Tracktor to run on your machine.
+
+The Tracktor instructions suggest using `conda install` to install OpenCV, but every time I try this it warns me that it will downgrade my version of Python and/or installed packages. When I use `pip`, however, things install quickly and happily. Your results may vary!
+
+```
+activate mynewenv
+pip install opencv-contrib-python
+```
+Now check the install:
+
+```
+python
+import cv2
+```
+If there were no errors, OpenCV was installed correctly. You can exit the Python session.
+
+```
+exit()
+deactivate
+```
+
+## Download and install Tracktor
+Directly from Tracktor's guide:
+
+>Go on Tracktor’s GitHub page and click the green “clone or download” button. Download the .zip file to your choice location on your computer, and unzip the folder.
+>
+>Tracktor is basically just a set of lines of code, there is no “installation” required as for most software, and there is no GUI (Graphical User Interface). You will need to enter the various parameters (e.g. name of video, location of the video, etc.) directly into the code.
+
+While this is true when making edits to the Jupyter notebooks they ship with the folder, I have found it useful to "install" this into my environment anyway.
+
+```
+activate mynewenv
+pip install c:/unzipped/location/on/my/computer/tracktor-master
+```
+Now check the install:
+
+```
+python
+import tracktor
+```
+If there were no errors, tracktor was installed correctly. You can exit the Python session.
+
+```
+exit()
+deactivate
+```
+
+Now that it's installed, you can delete the zipped and unzipped tracktor folders.
+
+## Install [`reticulate`](https://rstudio.github.io/reticulate/)
+This  next step is not necessary, but I do most of my work in R with RStudio, so I find it easier to keep everything (at least in terms of writing scripts, etc.) within the RStudio IDE. The `reticulate` package in R lets you do this. Unfortunately, I haven't had much luck creating and working with the condaenv through `reticulate` (what we just did in the steps above), even though there are built-in functions to do this.
+
+We'll load `reticulate` and force it to use the condaenv we've set up, which includes all of the Python packages we spent so long getting ready. Here I use an environment called "fish-video"; `reticulate` prefers evironments that have the best version of numpy, `required = T` stops that behavior.
+
+```{r}
+library(reticulate)
+use_condaenv('fish-video', required = T)
+```
+Now make sure that you're using the correct environment and version of Python, as there are probably a few different versions already installed on your computer. In the output of `reticulate::py_config()`, "python:" should be followed by the location of the condaenv you just told R to use, and there should be a note at the bottom saying that you've forced a different environment using `reticulate::use_condaenv()`: "NOTE: Python version was forced by use_python function".
+
+```{r}
+py_config()
+```
+
+
+
+
