@@ -13,4 +13,4 @@ py_run_string("fishtrack(n_inds = 3,
              min_area = 8000,
              max_area = 740000,
              vid_name = 'bsb_vid',
-             vid_loc = 'c:/users/secor/desktop/fish-video/')")
+             vid_loc = 'p:/obrien/biotelemetry/darpa/fish-video/')")
