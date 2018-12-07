@@ -35,7 +35,7 @@ ggplot() +
 
 anim_save('bsb_gif.gif')
 
-d2 <- data.frame(pos = c(data$pos_x, data$pos_y),
+d2 <- data.frame(pos = c(data$pos_x, -data$pos_y),
                  axis = rep(c('x','y'), each = 4668),
                  id = rep(data$id, times = 2),
                  frame = rep(data$frame, times = 2))
