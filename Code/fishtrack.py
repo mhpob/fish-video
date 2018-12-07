@@ -1,3 +1,6 @@
+# Run this in R:
+# reticulate::use_condaenv('fish-video', required = T)
+
 import numpy as np
 import pandas as pd
 import tracktor as tr
@@ -35,6 +38,7 @@ def fishtrack(n_inds, ind_id, colors, block_size, offset, min_area, max_area,
 
   df = []
   last = 0
+  kernel = np.ones((10, 10), np.uint8)
 
   while(True):
     try:
@@ -46,10 +50,11 @@ def fishtrack(n_inds, ind_id, colors, block_size, offset, min_area, max_area,
          # Preprocess the image for background subtraction
           frame = cv2.resize(frame, None, fx = scaling, fy = scaling,
             interpolation = cv2.INTER_LINEAR)
-          imgplot = imshow(frame)
-          print(imgplot)
 
           thresh = tr.colour_to_thresh(frame, block_size, offset)
+
+          # thresh = cv2.dilate(thresh, kernel, iterations = 2)
+          thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
 
           final, contours, meas_last, meas_now = tr.detect_and_draw_contours(frame,
             thresh, meas_last, meas_now, min_area, max_area)
@@ -76,17 +81,18 @@ def fishtrack(n_inds, ind_id, colors, block_size, offset, min_area, max_area,
       last = this
 
     except ValueError as error:
-      cap.release()
-      out.release()
-      cv2.destroyAllWindows()
-      cv2.waitKey(1)
       print('Tracking broke. Try adjusting block_size, offset, min_area, ' +
-      'and/or max_area')
+      'and/or max_area.')
+      # cap.release()
+      # out.release()
+      # cv2.destroyAllWindows()
+      # cv2.waitKey(1)
+
 
 
   ## Write positions to file
   df = pd.DataFrame(np.matrix(df), columns = ['frame','pos_x','pos_y', 'id'])
-  df.to_csv(output_filepath, sep=',')
+  df.to_csv(output_filepath, sep=',', index = False)
 
   ## When everything done, release the capture
   cap.release()
