@@ -11,7 +11,7 @@
 
 <meta name="author" content="Mike O’Brien" />
 
-<meta name="date" content="2018-12-03" />
+<meta name="date" content="2018-12-06" />
 
 <title>Motion Tracking with Tracktor and OpenCV in R</title>
 
@@ -1580,12 +1580,12 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Motion Tracking with Tracktor and OpenCV in R</h1>
 <h4 class="author"><em>Mike O’Brien</em></h4>
-<h4 class="date"><em>December 3, 2018</em></h4>
+<h4 class="date"><em>December 06, 2018</em></h4>
 
 </div>
 
 
-<p>Everything below assumes that you have successfully installed Python and the <a href="http://www.numpy.org/">NumPy</a>, <a href="https://pandas.pydata.org/">pandas</a>, <a href="https://scipy.org/scipylib/index.html">SciPy</a>, <a href="https://matplotlib.org/">matplotlib</a>, <a href="https://scikit-learn.org/stable/">scikit-learn</a>, and <a href="https://docs.opencv.org/master/">OpenCV</a> packages. In addition, <a href="https://github.com/vivekhsridhar/Tracktor">Tracktor</a> should be downloaded and unzipped somewhere on your computer.</p>
+<p>Everything below assumes that you have successfully installed Python and the <a href="http://www.numpy.org/">NumPy</a>, <a href="https://pandas.pydata.org/">pandas</a>, <a href="https://scipy.org/scipylib/index.html">SciPy</a>, <a href="https://matplotlib.org/">matplotlib</a>, <a href="https://scikit-learn.org/stable/">scikit-learn</a>, <a href="https://docs.opencv.org/master/">OpenCV</a>, and <a href="https://github.com/vivekhsridhar/Tracktor">Tracktor</a> packages.</p>
 <div id="using-r" class="section level2">
 <h2>Using R</h2>
 <p>I’m a heavy R user, and way more used to syntax and scripting in R than I am in Python and using, say, <a href="http://jupyter.org/">Jupyter notebooks</a>. I know for a fact that there are faster ways to run this, specifically using programs that are optimized for Python. Regardless, I am going to use <a href="https://www.r-project.org/">R</a>, <a href="https://www.rstudio.com/">RStudio</a>, and the <a href="https://rstudio.github.io/reticulate/"><code>reticulate</code> package</a> to interface with the code needed.</p>
@@ -1593,17 +1593,13 @@ $(document).ready(function () {
 <div id="writing-the-python-script" class="section level2">
 <h2>Writing the Python script</h2>
 <p>Tracktor ships with a suite of Jupyter notebooks that run a few examples, and they suggest that you manipulate the parameters in the notebook to suit your own devices. I’m just converting these to regular, run-of-the-mill scripts I can source through R.</p>
-<p>To start this process, I load <code>reticulate</code> and force it to use our previously-created condaenv.</p>
+<p>To start this process, I load <code>reticulate</code> in R and force it to use our previously-created condaenv.</p>
 <pre class="r"><code>library(reticulate)
 use_condaenv(&#39;fish-video&#39;, required = T)</code></pre>
 </div>
 <div id="loading-the-python-packages" class="section level2">
 <h2>Loading the Python packages</h2>
-<p>Mark this next bit down to my inexperience with Python. I can’t figure out how to load Tracktor directly into my condaenv, so I’m going to work around this by loading it into the envrionment via R.</p>
-<pre class="r"><code>import_from_path(&#39;tracktor&#39;,
-                       path = &#39;c:/users/secor/desktop/tracktor/tracktor-master&#39;)</code></pre>
-<pre><code>## Module(tracktor)</code></pre>
-<p>Next, I’m going to load all of the packages</p>
+<p>I’m going to load all of the packages into the Python session. All code from here on out will be in Python. If you have <a href="https://www.rstudio.com/products/rstudio/download/preview/">RStudio 1.2+</a>, this will automatically run in RStudio.</p>
 <pre class="python"><code>import numpy as np
 import pandas as pd
 import tracktor as tr
@@ -1647,12 +1643,12 @@ offset = 10</code></pre>
 <p>The scaling parameter can be used to speed up tracking if video resolution is too high (use value 0-1).</p>
 <pre class="python"><code>scaling = 1.0</code></pre>
 <p>Minimum area and maximum area occupied by the animal in number of pixels. This parameter is used to get rid of other objects in view that might be hard to threshold out but are differently sized.</p>
-<pre class="python"><code>min_area = 10000
+<pre class="python"><code>min_area = 9000
 max_area = 70000</code></pre>
 <p><code>mot</code> determines whether the tracker is being used in noisy conditions to track a single object or for multi-object. Using this will enable k-means clustering to force n_inds number of animals.</p>
 <pre class="python"><code>mot = True</code></pre>
 <p>Lastly, name of the source video and paths.</p>
-<pre class="python"><code>video = &#39;bsb_short&#39;
+<pre class="python"><code>video = &#39;bsb_vid&#39;
 input_vidpath = &#39;c:/users/secor/desktop/fish-video/&#39; + video + &#39;.mp4&#39;
 output_vidpath = &#39;c:/users/secor/desktop/fish-video/&#39; + video + &#39;_tracked.mp4&#39;
 output_filepath = &#39;c:/users/secor/desktop/fish-video/&#39; + video + &#39;_tracked.csv&#39;
@@ -1714,7 +1710,7 @@ last = 0</code></pre>
 ## 
 ## Detailed traceback: 
 ##   File &quot;&lt;string&gt;&quot;, line 19, in &lt;module&gt;
-##   File &quot;c:\Users\secor\Desktop\tracktor\tracktor-master\tracktor\tracktor.py&quot;, line 116, in apply_k_means
+##   File &quot;C:\Users\secor\AppData\Local\conda\conda\envs\FISH-V~1\lib\site-packages\tracktor\tracktor.py&quot;, line 116, in apply_k_means
 ##     myarray = np.vstack(contours)
 ##   File &quot;C:\Users\secor\AppData\Local\conda\conda\envs\FISH-V~1\lib\site-packages\numpy\core\shape_base.py&quot;, line 234, in vstack
 ##     return _nx.concatenate([atleast_2d(_m) for _m in tup], 0)</code></pre>
@@ -1726,6 +1722,22 @@ df.to_csv(output_filepath, sep=&#39;,&#39;)</code></pre>
 out.release()
 cv2.destroyAllWindows()
 cv2.waitKey(1)</code></pre>
+</div>
+<div id="now-a-function" class="section level2">
+<h2>Now a function</h2>
+<p>I’ve now tucked all of this into a function in a Python script that I can run through R. Most of the errors I get are involving the block size/offset/areas, so this lets me flip through iterations relatively quickly.</p>
+<pre class="r"><code>use_condaenv(&#39;fish-video&#39;, required = T)
+source_python(&#39;code/fishtrack.py&#39;)
+
+py_run_string(&quot;fishtrack(n_inds = 3,
+             ind_id = [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;],
+             colors = [(0,0,255), (0,255,255), (255,0,255), (255,255,255), (255,255,0), (255,0,0), (0,255,0), (0,0,0)],
+             block_size = 701,
+             offset = 11,
+             min_area = 8000,
+             max_area = 740000,
+             vid_name = &#39;bsb_vid&#39;,
+             vid_loc = &#39;p:/obrien/biotelemetry/darpa/fish-video/&#39;)&quot;)</code></pre>
 </div>
 
 
